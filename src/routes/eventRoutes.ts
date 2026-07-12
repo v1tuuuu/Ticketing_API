@@ -12,7 +12,7 @@ router.put("/events/:id", authMiddleware, updateEvent);
 router.delete("/events/:id", authMiddleware, deleteEvent);
 
 // Rotas de Usuários
-router.post("/users/register", registerUser);
-router.post("/users/login", loginUser);
+router.post("/auth/register", registerUser);
+router.post("/auth/login", loginUser);
 
 export default router;
