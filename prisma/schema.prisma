@@ -1,0 +1,60 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+enum Role{
+  CLIENT
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(uuid()) // Remova o '(id)' de dentro do uuid
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(CLIENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt          // Mude o 'AT' final para 'At' minúsculo
+  
+  events    Event[]
+
+  @@map("users")
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  date        DateTime
+  location    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relação: Todo evento precisa de um organizador
+  userId      String
+  organizer   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relação: Um evento pode ter vários lotes de ingressos
+  tickets     Ticket[]
+
+  @@map("events")
+}
+
+model Ticket {
+  id          String   @id @default(uuid())
+  name        String   // Ex: "Lote 1 - Pista", "Camarote VIP"
+  price       Float    // O Prisma aceita Float ou Decimal. Usaremos Float para simplificar.
+  quantity    Int      // Quantidade total de ingressos colocados à venda neste lote
+  sold        Int      @default(0) // Quantidade de ingressos já vendidos neste lote
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relação: O lote pertence a um evento específico
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("tickets")
+}
