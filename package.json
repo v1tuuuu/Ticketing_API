@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch src/serve.ts"
+    "dev": "tsx watch src/serve.ts",
+    "dev:backend": "tsx watch src/serve.ts",
+    "dev:frontend": "npm --prefix frontend run dev -- --host 0.0.0.0 --port 3001"
   },
   "keywords": [],
   "author": "",

@@ -29,8 +29,8 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md dark:bg-gray-900 dark:text-gray-100">
         <h1 className="text-3xl font-bold text-center mb-8">Login</h1>
 
         {error && (
@@ -41,7 +41,7 @@ export function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Email</label>
+            <label className="block text-gray-700 font-semibold mb-2 dark:text-gray-300">Email</label>
             <input
               type="email"
               value={email}
@@ -53,7 +53,7 @@ export function Login() {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Senha</label>
+            <label className="block text-gray-700 font-semibold mb-2 dark:text-gray-300">Senha</label>
             <input
               type="password"
               value={password}
@@ -73,7 +73,7 @@ export function Login() {
           </button>
         </form>
 
-        <p className="text-center text-gray-600 mt-6">
+        <p className="text-center text-gray-600 mt-6 dark:text-gray-400">
           Não tem conta?{' '}
           <Link to="/register" className="text-primary font-semibold hover:underline">
             Cadastro

@@ -37,8 +37,8 @@ export function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md dark:bg-gray-900 dark:text-gray-100">
         <h1 className="text-3xl font-bold text-center mb-8">Cadastro</h1>
 
         {error && (
@@ -49,7 +49,7 @@ export function Register() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Nome</label>
+            <label className="block text-gray-700 font-semibold mb-2 dark:text-gray-300">Nome</label>
             <input
               type="text"
               value={name}
@@ -61,7 +61,7 @@ export function Register() {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Email</label>
+            <label className="block text-gray-700 font-semibold mb-2 dark:text-gray-300">Email</label>
             <input
               type="email"
               value={email}
@@ -73,7 +73,7 @@ export function Register() {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Senha</label>
+            <label className="block text-gray-700 font-semibold mb-2 dark:text-gray-300">Senha</label>
             <input
               type="password"
               value={password}
@@ -85,7 +85,7 @@ export function Register() {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Confirmar Senha</label>
+            <label className="block text-gray-700 font-semibold mb-2 dark:text-gray-300">Confirmar Senha</label>
             <input
               type="password"
               value={confirmPassword}
@@ -105,7 +105,7 @@ export function Register() {
           </button>
         </form>
 
-        <p className="text-center text-gray-600 mt-6">
+        <p className="text-center text-gray-600 mt-6 dark:text-gray-400">
           Já tem conta?{' '}
           <Link to="/login" className="text-primary font-semibold hover:underline">
             Login
