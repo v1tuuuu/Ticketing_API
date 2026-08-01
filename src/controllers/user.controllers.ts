@@ -71,13 +71,13 @@ export async function loginUser(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const secret = process.env.JWT_SECRET;
+    const secret = process.env['JWT_SECRET'];
     if (!secret) {
       res.status(500).json({ error: 'Chave secreta do JWT não configurada no servidor.' });
       return;
     }
     
-const token = jwt.sign({ id: user.id, role: user.role }, "CHAVE_SECRETA_PROVISORIA", { expiresIn: "1d" });
+    const token = jwt.sign({ id: user.id, role: user.role }, secret, { expiresIn: "1d" });
 
     const { password: _, ...userWithoutPassword } = user;
 

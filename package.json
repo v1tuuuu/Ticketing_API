@@ -2,9 +2,9 @@
   "name": "ticketing-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_ENV=test vitest run --coverage",
+    "test:watch": "NODE_ENV=test vitest",
     "dev": "tsx watch src/serve.ts",
     "dev:backend": "tsx watch src/serve.ts",
     "dev:frontend": "npm --prefix frontend run dev -- --host 0.0.0.0 --port 3001"
@@ -16,13 +16,19 @@
   "devDependencies": {
     "@prisma/config": "^7.8.0",
     "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^25.9.1",
+    "@types/node": "^20.14.9",
     "@types/pg": "^8.20.0",
+    "@types/supertest": "^6.0.2",
+    "@vitest/coverage-v8": "^1.6.0",
+    "prisma": "^5.16.1",
+    "supertest": "^7.0.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.0",
-    "typescript": "^6.0.3"
+    "typescript": "^5.5.2",
+    "vitest": "^1.6.0"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
@@ -36,3 +42,4 @@
     "zod": "^4.4.3"
   }
 }
+ 

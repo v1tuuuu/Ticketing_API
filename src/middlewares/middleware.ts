@@ -26,33 +26,23 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     return res.status(401).json({ message: "Token não fornecido ou inválido." });
   }
 
-  const secret = process.env.JWT_SECRET;
+  const secret = process.env['JWT_SECRET'];
   if (!secret) {
     console.error("JWT_SECRET não configurado no ambiente");
-    return res.status(500).json({ message: "Chave secreta do JWT não configurada." });
+    // Em produção, é melhor enviar uma mensagem genérica.
+    return res.status(500).json({ message: "Erro interno do servidor." });
   }
 
   try {
-    const decoded = jwt.verify(token, "CHAVE_SECRETA_PROVISORIA") as JwtPayload;
+    // Usa a variável de ambiente para verificar o token
+    const decoded = jwt.verify(token, secret) as JwtPayload;
 
-    if (
-      typeof decoded !== "object" ||
-      decoded === null ||
-      !("id" in decoded) ||
-      !("role" in decoded) ||
-      typeof (decoded as any).id !== "string" ||
-      typeof (decoded as any).role !== "string"
-    ) {
-      return res.status(401).json({ message: "Token inválido ou expirado." });
-    }
-
-    req.user = {
-      id: (decoded as any).id,
-      role: (decoded as any).role,
-    };
+    // Anexa o payload decodificado (id, role) ao objeto da requisição
+    req.user = decoded;
 
     return next();
   } catch (error) {
+    // jwt.verify lança um erro para tokens inválidos ou expirados
     return res.status(401).json({ message: "Token inválido ou expirado." });
   }
 };

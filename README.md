@@ -1,10 +1,10 @@
 # Ticketing API 🎟️
 
-Uma API REST para gerenciamento de eventos e vendas de ingressos construída com Express, TypeScript, PostgreSQL e Prisma.
+Uma API REST para gerenciamento de eventos e ingressos construída com Express, TypeScript, PostgreSQL e Prisma.
 
 ## 🎯 Sobre o Projeto
 
-Ticketing API é uma plataforma que permite criar e gerenciar eventos, definir lotes de ingressos e controlar a venda de ingressos para diferentes tipos de eventos.
+Ticketing API permite criar e gerenciar eventos, autenticar usuários e proteger operações de CRUD por perfil.
 
 ## 🏗️ Arquitetura e Stack
 
@@ -13,9 +13,9 @@ Ticketing API é uma plataforma que permite criar e gerenciar eventos, definir l
 - **Framework Web**: Express.js v5.2.1
 - **ORM**: Prisma v7.8.0
 - **Banco de Dados**: PostgreSQL
-- **Autenticação**: JWT (JSON Web Tokens) + bcrypt
+- **Autenticação**: JWT + bcrypt
 - **Validação**: Zod
-- **Desenvolvimento**: tsx watch
+- **Desenvolvimento**: tsx
 
 ## 📦 Dependências Principais
 
@@ -43,166 +43,137 @@ Ticketing API é uma plataforma que permite criar e gerenciar eventos, definir l
 - role: Enum (CLIENT | ADMIN)
 - createdAt: DateTime
 - updatedAt: DateTime
-- events: Event[] (relacionamento)
+- events: Event[]
 ```
 
 ### Event (Eventos)
 ```typescript
 - id: UUID (único)
 - title: String
-- description: String (opcional)
+- description: String? 
 - date: DateTime
 - location: String
 - createdAt: DateTime
 - updatedAt: DateTime
-- userId: String (FK para User - organizador)
-- organizer: User (relacionamento)
-- tickets: Ticket[] (relacionamento)
+- userId: String (FK para User)
+- organizer: User
+- tickets: Ticket[]
 ```
 
 ### Ticket (Lotes de Ingressos)
 ```typescript
 - id: UUID (único)
-- name: String (ex: "Lote 1 - Pista", "Camarote VIP")
+- name: String
 - price: Float
-- quantity: Int (total disponível)
-- sold: Int (já vendidos, padrão 0)
+- quantity: Int
+- sold: Int @default(0)
 - createdAt: DateTime
 - updatedAt: DateTime
 - eventId: String (FK para Event)
-- event: Event (relacionamento)
+- event: Event
 ```
 
 ## 🔐 Autenticação
 
-A API utiliza **JWT (JSON Web Tokens)** para autenticação:
+A API utiliza **JWT** para autenticação e controle de acesso.
 
-- **Token payload**: `{ id: string, role: Role }`
+- **Payload**: `{ id: string, role: Role }`
 - **Expiração**: 1 dia
-- **Segurança**: Senhas hash com bcrypt (salt rounds: 10)
+- **Segurança**: hash de senha com bcrypt
 
 ## 🛣️ Rotas Implementadas
 
 ### Autenticação
-- `POST /api/auth/register` - Registrar novo usuário
-- `POST /api/auth/login` - Fazer login e obter token JWT
+- `POST /api/auth/register` - Registrar usuário
+- `POST /api/auth/login` - Login e geração de token JWT
 
-### Validações
-- **Registro**: Nome (min 2 chars), Email válido, Senha (min 6 chars)
-- **Login**: Email válido, Senha obrigatória
+### Eventos
+- `POST /api/events` - Criar evento (autenticado)
+- `GET /api/events` - Listar eventos (autenticado)
+- `GET /api/events/:id` - Buscar evento por ID (autenticado)
+- `PUT /api/events/:id` - Atualizar evento (autenticado, organizador/Admin)
+- `DELETE /api/events/:id` - Excluir evento (autenticado, organizador/Admin)
 
-## 🗄️ Database
+## 🧪 Validações
+
+- Registro: nome mínimo 2 caracteres, email válido, senha mínima 6 caracteres
+- Login: email válido, senha obrigatória
+- Eventos: title, date e location obrigatórios
+
+## 🗄️ Banco de Dados
+
+- Conexão via `DATABASE_URL`
+- Prisma configurado com `@prisma/adapter-pg`
+- Retry automático de conexão para suportar inicialização gradual do banco via Docker Compose
 
 ### Migrations Aplicadas
-1. **20260627192625_init**: Schema inicial
-2. **20260706183223_add_users_and_tickets**: Modelos User, Event e Ticket
-
-### Adapter
-- Usando `@prisma/adapter-pg` para otimização com PostgreSQL
+1. `20260627192625_init`
+2. `20260706183223_add_users_and_tickets`
 
 ## 🚀 Como Iniciar
 
 ### Pré-requisitos
 - Node.js (v18+)
 - PostgreSQL (local ou Docker)
-- npm ou yarn
+- npm
 
 ### Instalação
 
 ```bash
-# Clonar repositório
 git clone https://github.com/vitor/ticketing-api.git
 cd ticketing-api
-
-# Instalar dependências
 npm install
-
-# Configurar variáveis de ambiente
 cp .env.example .env
-# Editar .env com suas credenciais do PostgreSQL
-
-# Executar migrations
+# editar .env com suas credenciais
 npx prisma migrate deploy
-
-# Iniciar servidor em modo desenvolvimento
 npm run dev
 ```
 
 ### Variáveis de Ambiente
+
 ```
 DATABASE_URL=postgresql://usuario:senha@localhost:5432/ticketing_db
 JWT_SECRET=sua_chave_secreta_aqui
 PORT=3000
+NODE_ENV=development
 ```
 
-## 📝 Exemplo de Uso
+## 🧪 Testes
 
-### Registrar usuário
-```bash
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "João Silva",
-    "email": "joao@example.com",
-    "password": "senha123"
-  }'
-```
-
-### Fazer login
-```bash
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "joao@example.com",
-    "password": "senha123"
-  }'
-```
+- `npm test` - executa Vitest com `NODE_ENV=test`
+- `npm run test:watch` - executa testes em modo watch
+- Usa `.env.test` para configuração de testes
 
 ## 📁 Estrutura do Projeto
 
 ```
 src/
 ├── controllers/
-│   ├── user.controllers.ts       # Controllers de autenticação e usuários
-│   └── eventControllers.ts       # Controllers de eventos (em desenvolvimento)
+│   ├── eventControllers.ts
+│   └── user.controllers.ts
 ├── routes/
-│   └── eventRoutes.ts            # Rotas da API
+│   ├── eventRoutes.ts
+│   └── userRoutes.ts
 ├── middlewares/
-│   └── middleware.ts             # Middlewares customizados
-├── services/                     # Lógica de negócio
-├── prisma.ts                     # Configuração do Prisma Client
-└── serve.ts                      # Entrada da aplicação
+│   └── middleware.ts
+├── prisma.ts
+└── serve.ts
 
 prisma/
-├── schema.prisma                 # Schema do banco de dados
-└── migrations/                   # Histórico de migrations
+├── schema.prisma
+└── migrations/
 ```
-
-## 🔄 Fluxo de Desenvolvimento
-
-1. **Autenticação**: Registro e Login de usuários com JWT
-2. **Gestão de Eventos**: CRUD de eventos (em desenvolvimento)
-3. **Gestão de Ingressos**: Criação e venda de lotes de ingressos
-4. **Controle de Acesso**: Diferenciação entre roles (CLIENT/ADMIN)
 
 ## ✅ Status do Projeto
 
-- ✅ Setup inicial com Express + TypeScript
-- ✅ Configuração do Prisma + PostgreSQL
-- ✅ Modelos de dados (User, Event, Ticket)
-- ✅ Autenticação com JWT + bcrypt
-- ✅ Controllers de usuários (register, login)
+- ✅ Backend em Express + TypeScript
+- ✅ Autenticação JWT + bcrypt
 - ✅ Validação com Zod
-- ⏳ Controllers de eventos (em desenvolvimento)
-- ⏳ Middleware de autenticação
-- ⏳ Testes unitários
-- ⏳ Documentação com Swagger/OpenAPI
-- ⏳ Deployment
+- ✅ CRUD de eventos com proteção de permissão
+- ✅ Prisma com PostgreSQL
+- ✅ Testes com Vitest e Supertest
+- ✅ Retry de conexão do banco no startup
 
 ## 📄 Licença
 
 ISC
-
----
-
-**Desenvolvido com ❤️ por Vitor**

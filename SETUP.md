@@ -255,4 +255,4 @@ cat .gitignore | grep .env
 
 ---
 
-**Desenvolvido com ❤️ por Vitor**
+**Desenvolvido por Vitu**

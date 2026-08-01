@@ -1,18 +1,15 @@
 import { Router } from "express";
 import { createEvent, getEvents, getEventById, updateEvent, deleteEvent } from "../controllers/eventControllers.js";
-import { registerUser, loginUser } from "../controllers/user.controllers.js";
 import { authMiddleware } from "../middlewares/middleware.js";
 const router = Router();
 
-// Rotas de Eventos
-router.post("/events", authMiddleware, createEvent);
-router.get("/events", authMiddleware, getEvents);
-router.get("/events/:id", authMiddleware, getEventById);
-router.put("/events/:id", authMiddleware, updateEvent);
-router.delete("/events/:id", authMiddleware, deleteEvent);
+router.route("/events")
+  .post(authMiddleware, createEvent)
+  .get(authMiddleware, getEvents);
 
-// Rotas de Usuários
-router.post("/auth/register", registerUser);
-router.post("/auth/login", loginUser);
+router.route("/events/:id")
+  .get(authMiddleware, getEventById)
+  .put(authMiddleware, updateEvent)
+  .delete(authMiddleware, deleteEvent);
 
 export default router;
