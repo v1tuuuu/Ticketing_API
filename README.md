@@ -1,179 +1,143 @@
 # Ticketing API 🎟️
 
-Uma API REST para gerenciamento de eventos e ingressos construída com Express, TypeScript, PostgreSQL e Prisma.
+API REST para gestão de eventos e ingressos, com autenticação, validações e persistência em banco relacional.
 
 ## 🎯 Sobre o Projeto
 
-Ticketing API permite criar e gerenciar eventos, autenticar usuários e proteger operações de CRUD por perfil.
+Este projeto oferece uma base para criar, listar, atualizar e remover eventos, além de autenticar usuários e controlar acesso a operações sensíveis.
 
 ## 🏗️ Arquitetura e Stack
 
-- **Runtime**: Node.js
-- **Linguagem**: TypeScript
-- **Framework Web**: Express.js v5.2.1
-- **ORM**: Prisma v7.8.0
-- **Banco de Dados**: PostgreSQL
-- **Autenticação**: JWT + bcrypt
-- **Validação**: Zod
-- **Desenvolvimento**: tsx
-
-## 📦 Dependências Principais
-
-```json
-{
-  "@prisma/client": "^7.8.0",
-  "@prisma/adapter-pg": "^7.8.0",
-  "express": "^5.2.1",
-  "jsonwebtoken": "^9.0.3",
-  "bcrypt": "^6.0.0",
-  "zod": "^4.4.3",
-  "pg": "^8.21.0",
-  "dotenv": "^17.4.2"
-}
-```
+- Node.js
+- TypeScript
+- Express
+- PostgreSQL
+- Prisma
+- JWT para autenticação
+- bcrypt para hash de senhas
+- Zod para validação
 
 ## 📊 Modelos de Dados
 
-### User (Usuários)
-```typescript
-- id: UUID (único)
-- name: String
-- email: String (único)
-- password: String (hash bcrypt)
-- role: Enum (CLIENT | ADMIN)
-- createdAt: DateTime
-- updatedAt: DateTime
-- events: Event[]
-```
+### Usuários
+- id único
+- nome
+- email único
+- senha protegida por hash
+- papel/perfil do usuário
+- dados de criação e atualização
 
-### Event (Eventos)
-```typescript
-- id: UUID (único)
-- title: String
-- description: String? 
-- date: DateTime
-- location: String
-- createdAt: DateTime
-- updatedAt: DateTime
-- userId: String (FK para User)
-- organizer: User
-- tickets: Ticket[]
-```
+### Eventos
+- id único
+- título
+- descrição
+- data
+- localização
+- usuário responsável
+- registros de criação e atualização
 
-### Ticket (Lotes de Ingressos)
-```typescript
-- id: UUID (único)
-- name: String
-- price: Float
-- quantity: Int
-- sold: Int @default(0)
-- createdAt: DateTime
-- updatedAt: DateTime
-- eventId: String (FK para Event)
-- event: Event
-```
+### Ingressos
+- id único
+- nome do lote
+- preço
+- quantidade total
+- quantidade vendida
+- associação ao evento
 
 ## 🔐 Autenticação
 
-A API utiliza **JWT** para autenticação e controle de acesso.
+A API usa autenticação baseada em tokens e senha com hash seguro.
 
-- **Payload**: `{ id: string, role: Role }`
-- **Expiração**: 1 dia
-- **Segurança**: hash de senha com bcrypt
+- fluxo de cadastro e login
+- proteção de rotas por perfil ou proprietário
+- tokens configurados via variáveis de ambiente
 
-## 🛣️ Rotas Implementadas
+## 🛣️ Rotas Principais
 
 ### Autenticação
-- `POST /api/auth/register` - Registrar usuário
-- `POST /api/auth/login` - Login e geração de token JWT
+- `POST /api/auth/register`
+- `POST /api/auth/login`
 
 ### Eventos
-- `POST /api/events` - Criar evento (autenticado)
-- `GET /api/events` - Listar eventos (autenticado)
-- `GET /api/events/:id` - Buscar evento por ID (autenticado)
-- `PUT /api/events/:id` - Atualizar evento (autenticado, organizador/Admin)
-- `DELETE /api/events/:id` - Excluir evento (autenticado, organizador/Admin)
+- `POST /api/events`
+- `GET /api/events`
+- `GET /api/events/:id`
+- `PUT /api/events/:id`
+- `DELETE /api/events/:id`
 
 ## 🧪 Validações
 
-- Registro: nome mínimo 2 caracteres, email válido, senha mínima 6 caracteres
-- Login: email válido, senha obrigatória
-- Eventos: title, date e location obrigatórios
+- nome e email válidos no registro
+- senha com comprimento mínimo definido pela regra do projeto
+- campos obrigatórios em eventos
+- dados sanitizados antes de persistir
 
 ## 🗄️ Banco de Dados
 
-- Conexão via `DATABASE_URL`
-- Prisma configurado com `@prisma/adapter-pg`
-- Retry automático de conexão para suportar inicialização gradual do banco via Docker Compose
+O projeto utiliza Prisma com PostgreSQL e migrações para versionar o schema.
 
-### Migrations Aplicadas
-1. `20260627192625_init`
-2. `20260706183223_add_users_and_tickets`
+### Migrações
+- migração inicial
+- migração de usuários e ingressos
 
 ## 🚀 Como Iniciar
 
 ### Pré-requisitos
-- Node.js (v18+)
-- PostgreSQL (local ou Docker)
+- Node.js
 - npm
+- banco PostgreSQL disponível
 
 ### Instalação
 
 ```bash
-git clone https://github.com/vitor/ticketing-api.git
-cd ticketing-api
 npm install
 cp .env.example .env
-# editar .env com suas credenciais
+# edite o arquivo .env com suas configurações locais
 npx prisma migrate deploy
 npm run dev
 ```
 
 ### Variáveis de Ambiente
 
-```
-DATABASE_URL=postgresql://usuario:senha@localhost:5432/ticketing_db
-JWT_SECRET=sua_chave_secreta_aqui
+Configure as variáveis do ambiente de acordo com seu ambiente local ou de desenvolvimento, sem expor valores reais no repositório.
+
+```env
+DATABASE_URL=your_database_connection_string
+JWT_SECRET=your_secret_key
 PORT=3000
 NODE_ENV=development
 ```
 
 ## 🧪 Testes
 
-- `npm test` - executa Vitest com `NODE_ENV=test`
-- `npm run test:watch` - executa testes em modo watch
-- Usa `.env.test` para configuração de testes
+- `npm test`
+- `npm run test:watch`
+
+Os testes usam configuração específica para ambiente de teste e devem manter valores sensíveis fora do código versionado.
 
 ## 📁 Estrutura do Projeto
 
-```
+```text
 src/
 ├── controllers/
-│   ├── eventControllers.ts
-│   └── user.controllers.ts
 ├── routes/
-│   ├── eventRoutes.ts
-│   └── userRoutes.ts
 ├── middlewares/
-│   └── middleware.ts
 ├── prisma.ts
-└── serve.ts
-
+├── serve.ts
 prisma/
 ├── schema.prisma
-└── migrations/
+├── migrations/
 ```
 
 ## ✅ Status do Projeto
 
-- ✅ Backend em Express + TypeScript
-- ✅ Autenticação JWT + bcrypt
-- ✅ Validação com Zod
-- ✅ CRUD de eventos com proteção de permissão
-- ✅ Prisma com PostgreSQL
-- ✅ Testes com Vitest e Supertest
-- ✅ Retry de conexão do banco no startup
+- Backend em Express + TypeScript
+- Autenticação com JWT e hash de senha
+- Validação com Zod
+- CRUD de eventos
+- Persistência com Prisma + PostgreSQL
+- Testes automatizados
 
 ## 📄 Licença
 
-ISC
+A definir conforme a política da organização ou do mantenedor do projeto.
